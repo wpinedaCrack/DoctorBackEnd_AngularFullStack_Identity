@@ -1,6 +1,7 @@
 using API.Extensiones;
 using API.Middleware;
 using Data.Inicializador;
+using Models.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,9 @@ builder.Services.AddControllers();
 builder.Services.AgregaServiciosIdentidad(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddScoped<ApiResponse>();
 builder.Services.AddScoped<IdbInicializador, DBInicializador>();//wpineda implementar identity 
+
 
 var app = builder.Build();
 

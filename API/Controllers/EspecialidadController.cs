@@ -1,10 +1,13 @@
 ﻿using BLL.Servicios.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.DTOs;
 using System.Net;
 
 namespace API.Controllers
 {
+    //[Authorize(Roles="admin,agendador")]
+    [Authorize(Policy = "adminagendadorrol")]   //Agregar politica
     public class EspecialidadController : BaseApiController
     {
         private readonly IEspecialidadServicio _especialidadServicio;

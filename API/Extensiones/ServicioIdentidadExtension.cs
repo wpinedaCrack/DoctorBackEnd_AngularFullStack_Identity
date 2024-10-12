@@ -30,7 +30,14 @@ namespace API.Extensiones
                 };
             });
 
-            return services;
+            services.AddAuthorization(); ////Agregar politica
+
+            return services.AddAuthorization(opt=>
+            {
+                opt.AddPolicy("adminrol", policy => policy.RequireRole("admin"));
+                opt.AddPolicy("adminagendadorrol", policy => policy.RequireRole("admin","agendador"));
+                opt.AddPolicy("admindoctorrol", policy => policy.RequireRole("admin", "agendador"));
+            });
         }
     }
 }

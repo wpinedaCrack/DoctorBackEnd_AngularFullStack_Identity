@@ -6,40 +6,50 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.DTOs;
 using Models.Entidades;
+using System.Net;
 using System.Security.Cryptography;
 
 namespace API.Controllers
 {
     public class UsuarioController : BaseApiController
     {
-        public readonly UserManager<UsuarioAplicacion> _userManager;//AplicationDbContext _db;  wpineda implementar identity
-        public readonly ITokenServicio _tokenServicio;
+        private readonly UserManager<UsuarioAplicacion> _userManager;//AplicationDbContext _db;  wpineda implementar identity
+        private readonly ITokenServicio _tokenServicio;
+        private ApiResponse _response;
+        private readonly RoleManager<RolAplicacion> _rolManager;
 
         public UsuarioController(//AplicationDbContext db, wpineda implementar identity
-                                 UserManager<UsuarioAplicacion> userManager,
-                                 ITokenServicio tokenServicio)
+                                 UserManager<UsuarioAplicacion> userManager, 
+                                 ITokenServicio tokenServicio
+                                 , ApiResponse response,
+                                 RoleManager<RolAplicacion> rolManager)
         {
             //_db = db;
             _userManager = userManager;
             _tokenServicio = tokenServicio;
+            _response = response;
+            _rolManager = rolManager;
         }
+
         /*
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
-        {
-            var usuarios = await _db.Usuarios.ToListAsync();
-            return Ok(usuarios);
-        }
+[Authorize]
+[HttpGet]
+public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+{
+   var usuarios = await _db.Usuarios.ToListAsync();
+   return Ok(usuarios);
+}
 
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Usuario>> GetUsuario(int id)
-        {
-            var usuarios = await _db.Usuarios.FindAsync(id);
-            return Ok(usuarios);
-        }  wpineda implementar identity */
+[Authorize]
+[HttpGet("{id}")]
+public async Task<ActionResult<Usuario>> GetUsuario(int id)
+{
+   var usuarios = await _db.Usuarios.FindAsync(id);
+   return Ok(usuarios);
+}  wpineda implementar identity */
 
+        //[Authorize(Roles = "admin")]
+        [Authorize(Policy = "adminrol")] //Agregar politica
         [HttpPost("registro")]
         public async Task<ActionResult<UsuarioDto>> Registro(RegistroDto registroDto)
         {
@@ -121,6 +131,16 @@ namespace API.Controllers
                 Username = usuario.UserName,//usuario.Username.ToLower(), wpineda implementar identity
                 Token = await _tokenServicio.crearToken(usuario)
             };
+        }
+        [Authorize(Policy = "adminrol")] //Agregar politica
+        [HttpGet("ListadoRoles")]
+        public IActionResult GetRoles()
+        {
+            var roles = _rolManager.Roles.Select(r => new { NombreRol = r.Name }).ToList();
+            _response.Resultado = roles;
+            _response.IsExitoso = true;
+            _response.StatusCode = HttpStatusCode.OK;
+            return Ok(_response);
         }
 
         [AllowAnonymous]
